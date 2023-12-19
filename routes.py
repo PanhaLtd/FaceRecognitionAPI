@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Path, UploadFile, File
+from fastapi import APIRouter, UploadFile, File
 from fastapi import Depends
 from config import SessionLocal
 from sqlalchemy.orm import Session
@@ -6,7 +6,6 @@ from schemas import Response, StudentSchema, RequestStudent, ResponseNoData
 import numpy as np
 from PIL import Image
 from io import BytesIO
-import pipeline
 import tensorflow as tf
 import cv2
 import os
