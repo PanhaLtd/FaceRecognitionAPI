@@ -4,7 +4,7 @@ from tensorflow.keras import models
 
 
 def predictStudent(img):
-    data_dir = "../Facedatabase"
+    data_dir = "Facedatabase"
     BATCH_SIZE = 32
     IMAGE_SIZE = 224
     default_image_size = tuple((IMAGE_SIZE, IMAGE_SIZE))

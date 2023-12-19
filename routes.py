@@ -34,6 +34,9 @@ def get_face(img):
         pre_img = img[y:y+h,x:x+w] # crop image
         return pre_img
 
+def read_file_as_image(data) -> np.ndarray:
+    image = np.array(Image.open(BytesIO(data)))
+    return image
 
 @router.post("/addNewStudent")
 async def add_new_student(request: RequestStudent, db: Session = Depends(get_db)):
@@ -44,9 +47,14 @@ async def add_new_student(request: RequestStudent, db: Session = Depends(get_db)
                     result = student
                     ).dict(exclude_none=True)
 
+@router.get("/train")
+async def train_model():
+    message = trainModel()
+    return ResponseNoData(status="Ok", code="200", message="hello")
+
 @router.post("/addStudentVideo")
 async def add_student_video(student_id: int, student_name: str, video: UploadFile):
-    folder_name = f"../Facedatabase/{student_id}_{student_name}"
+    folder_name = f"Facedatabase/{student_id}_{student_name}"
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     video_path = f"{folder_name}/test.mp4"
@@ -58,7 +66,7 @@ async def add_student_video(student_id: int, student_name: str, video: UploadFil
     success, image = vidcap.read()
     count = 0
     img_id = 0
-    while success and count < 200:
+    while success and count < 100:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.1, 3)
         print(count)
@@ -72,10 +80,9 @@ async def add_student_video(student_id: int, student_name: str, video: UploadFil
                     img_id += 1
                     success, image = vidcap.read()
         count += 1
-    os.remove(video_path)
     return ResponseNoData(status="Ok", code="200", message="Add new student successfully")
 
-@router.get("")
+@router.get("/all")
 async def get_all_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     _students = crud.get_student(db)
     students = [StudentSchema(**student.__dict__) for student in _students]
@@ -108,15 +115,6 @@ async def predict_student(
         return Response[StudentSchema](status="Ok", code="200", message="Success fetch data", result=student_schema)
     else:
         return Response[None](status="Error", code="404", message="Student not found", result = None)
-
-@router.get("/train")
-async def train_model():
-    message = trainModel()
-    return ResponseNoData(status="Ok", code="200", message=message)
-
-def read_file_as_image(data) -> np.ndarray:
-    image = np.array(Image.open(BytesIO(data)))
-    return image
 
 # @router.patch("/update")
 # async def update_book(request: RequestBook, db: Session = Depends(get_db)):
