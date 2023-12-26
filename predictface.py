@@ -4,6 +4,10 @@ from tensorflow.keras import models
 
 
 def predictStudent(img):
+    model = tf.keras.models.load_model("app_model_with_normal")
+    img_array = tf.keras.preprocessing.image.img_to_array(img)
+    img_array = tf.expand_dims(img_array, 0) # Create a batch
+
     data_dir = "Facedatabase"
     BATCH_SIZE = 32
     IMAGE_SIZE = 224
@@ -18,9 +22,7 @@ def predictStudent(img):
 
     class_names = dataset.class_names
 
-    model = tf.keras.models.load_model("app_model_with_normal")
-    img_array = tf.keras.preprocessing.image.img_to_array(img)
-    img_array = tf.expand_dims(img_array, 0) # Create a batch
+    
 
     predictions = model.predict(img_array)
     print(np.argmax(predictions[0]))

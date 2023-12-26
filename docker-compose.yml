@@ -1,8 +1,14 @@
 version: '3.3'
 services:
+  app:
+    build: .
+    ports:
+      - "8000:80"
+    depends_on:
+      - postgres_db
   postgres_db:
     image: postgres:9.6
-    container_name: PostgresCont 
+    container_name: PostgresCont
     restart: always
     environment:
     - POSTGRES_USER=postgres
@@ -10,7 +16,7 @@ services:
     ports:
     - '8081:5432'
     volumes:
-    - ./pg_data:/var/lib/postgresql/data
+    - /etc/pg_data:/var/lib/postgresql/data
 volumes:
   postgres_db:
     driver: local

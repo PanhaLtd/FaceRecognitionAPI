@@ -6,5 +6,10 @@ class Student(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+    enname = Column(String)
+    gender = Column(String)
     dob = Column(String)
-    image_path = Column(String)
+    pob = Column(String)
+    address = Column(String)
+    phone = Column(String)
+    imagepath = Column(String)

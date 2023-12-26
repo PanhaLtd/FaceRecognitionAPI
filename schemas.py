@@ -9,19 +9,24 @@ T = TypeVar('T')
 class StudentSchema(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
+    enname: Optional[str] = None
+    gender: Optional[str] = None
     dob: Optional[date] = None
-    image_path: Optional[str] = None
+    pob: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    imagepath: Optional[str] = None
 
     class Config:
         orm_mode = True
 
 
 class Request(GenericModel, Generic[T]):
-    parameter: Optional[T] = Field(...)
+    student: Optional[T] = Field(...)
 
 
 class RequestStudent(BaseModel):
-    parameter: StudentSchema = Field(...)
+    student: StudentSchema = Field(...)
 
 
 class Response(GenericModel, Generic[T]):

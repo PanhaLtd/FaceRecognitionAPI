@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from fastapi import Depends
 from config import SessionLocal
 from sqlalchemy.orm import Session
@@ -11,6 +12,10 @@ import cv2
 import os
 from trainmodel import trainModel
 from predictface import predictStudent
+import uuid
+from fastapi.responses import JSONResponse, FileResponse
+
+import shutil
 
 
 import crud
@@ -39,7 +44,7 @@ def read_file_as_image(data) -> np.ndarray:
 
 @router.post("/addNewStudent")
 async def add_new_student(request: RequestStudent, db: Session = Depends(get_db)):
-    student = crud.add_student(db, student=request.parameter)
+    student = crud.add_student(db, student=request.student)
     return Response(status="Ok",
                     code="201",
                     message="Student is added successfully",
@@ -81,7 +86,7 @@ async def add_student_video(student_id: int, student_name: str, video: UploadFil
         count += 1
     return ResponseNoData(status="Ok", code="200", message="Add new student successfully")
 
-@router.get("/all")
+@router.get("/")
 async def get_all_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     _students = crud.get_student(db)
     students = [StudentSchema(**student.__dict__) for student in _students]
@@ -114,6 +119,33 @@ async def predict_student(
         return Response[StudentSchema](status="Ok", code="200", message="Success fetch data", result=student_schema)
     else:
         return Response[None](status="Error", code="404", message="Student not found", result = None)
+    
+@router.post("/upload")
+async def upload_image(file: UploadFile = File(...)):
+    
+    # Directory to store uploaded images
+    upload_folder = "uploads"
+    os.makedirs(upload_folder, exist_ok=True)
+
+    # Generate a unique filename for the uploaded image
+    file_extension = file.filename.split(".")[-1]
+    filename = f"{uuid.uuid4()}.{file_extension}"
+
+    
+    # Save the uploaded image to the server
+    file_path = os.path.join(upload_folder, filename)
+    with open(file_path, "wb") as image:
+        shutil.copyfileobj(file.file, image)
+
+    return JSONResponse(content={"image_url": filename}, status_code=201)
+
+@router.get("/images/{image}")
+async def get_student_by_id(image: str):
+    upload_folder = "uploads"
+    path = f"{upload_folder}/{image}"
+    print(path)
+    return FileResponse(path)
+    
 
 # @router.patch("/update")
 # async def update_book(request: RequestBook, db: Session = Depends(get_db)):

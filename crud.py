@@ -10,7 +10,17 @@ def get_student_by_id(db: Session, student_id: int):
     return db.query(Student).filter(Student.id == student_id).first()
 
 def add_student(db: Session, student: StudentSchema):
-    _student = Student(id = student.id, name = student.name, dob = student.dob, image_path = student.image_path)
+    _student = Student(
+        id = student.id,
+        name = student.name,
+        enname = student.enname,
+        gender = student.gender,
+        dob = student.dob,
+        pob = student.pob,
+        address = student.address,
+        phone = student.phone,
+        imagepath = student.imagepath
+    )
     db.add(_student)
     db.commit()
     db.refresh(_student)
