@@ -1,5 +1,4 @@
 from fastapi import APIRouter, UploadFile, File
-from fastapi.staticfiles import StaticFiles
 from fastapi import Depends
 from config import SessionLocal
 from sqlalchemy.orm import Session
@@ -22,7 +21,6 @@ import crud
 
 router = APIRouter()
 
-
 def get_db():
     db = SessionLocal()
     try:
@@ -33,7 +31,6 @@ def get_db():
 def get_face(img):
     haar = cv2.CascadeClassifier("Haarcascade/haarcascade_frontalface_default.xml")
     faces = haar.detectMultiScale(img,1.1,3)
-    print(faces)
     for x,y,w,h in faces:
         pre_img = img[y:y+h,x:x+w] # crop image
         return pre_img
@@ -57,8 +54,10 @@ async def train_model():
     return ResponseNoData(status="Ok", code="200", message="hello")
 
 @router.post("/addStudentVideo")
-async def add_student_video(student_id: int, student_name: str, video: UploadFile):
-    folder_name = f"Facedatabase/{student_id}_{student_name}"
+async def add_student_video(student_id: int, student_name: str, video: UploadFile = File(...)):
+    upload_folder = "data/Facedatabase"
+    os.makedirs(upload_folder, exist_ok=True)
+    folder_name = f"{upload_folder}/{student_id}_{student_name}"
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     video_path = f"{folder_name}/test.mp4"
@@ -73,8 +72,6 @@ async def add_student_video(student_id: int, student_name: str, video: UploadFil
     while success and count < 100:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.1, 3)
-        print(count)
-        print(faces)
         if(len(faces) != 0):
             for (x, y, w, h) in faces:
                 # if (w > 100):
@@ -112,7 +109,7 @@ async def predict_student(
 
     result = class_name.split("_")
     student_id = int(result[0])
-    
+
     student = crud.get_student_by_id(db, student_id)
     if student:
         student_schema = StudentSchema(**student.__dict__)
@@ -122,16 +119,15 @@ async def predict_student(
     
 @router.post("/upload")
 async def upload_image(file: UploadFile = File(...)):
-    
+
     # Directory to store uploaded images
-    upload_folder = "uploads"
+    upload_folder = "data/uploads"
     os.makedirs(upload_folder, exist_ok=True)
 
     # Generate a unique filename for the uploaded image
     file_extension = file.filename.split(".")[-1]
     filename = f"{uuid.uuid4()}.{file_extension}"
 
-    
     # Save the uploaded image to the server
     file_path = os.path.join(upload_folder, filename)
     with open(file_path, "wb") as image:
@@ -145,14 +141,12 @@ async def get_student_by_id(image: str):
     path = f"{upload_folder}/{image}"
     print(path)
     return FileResponse(path)
-    
 
 # @router.patch("/update")
 # async def update_book(request: RequestBook, db: Session = Depends(get_db)):
 #     _book = crud.update_book(db, book_id=request.parameter.id,
 #                              title=request.parameter.title, description=request.parameter.description)
 #     return Response(status="Ok", code="200", message="Success update data", result=_book)
-
 
 # @router.delete("/delete")
 # async def delete_book(request: RequestBook,  db: Session = Depends(get_db)):

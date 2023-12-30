@@ -1,14 +1,8 @@
 version: '3.3'
 services:
-  app:
-    build: .
-    ports:
-      - "8000:80"
-    depends_on:
-      - postgres_db
   postgres_db:
     image: postgres:9.6
-    container_name: PostgresCont
+    container_name: DB_Postgres
     restart: always
     environment:
     - POSTGRES_USER=postgres
@@ -17,6 +11,15 @@ services:
     - '8081:5432'
     volumes:
     - /etc/pg_data:/var/lib/postgresql/data
+  app:
+    build: .
+    container_name: API_FaceRecognition
+    ports:
+    - '8000:8000'
+    depends_on:
+    - postgres_db
+    volumes:
+    - /etc/mydata:/app/app/data
 volumes:
   postgres_db:
     driver: local

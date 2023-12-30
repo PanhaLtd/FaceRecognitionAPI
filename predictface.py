@@ -8,7 +8,7 @@ def predictStudent(img):
     img_array = tf.keras.preprocessing.image.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0) # Create a batch
 
-    data_dir = "Facedatabase"
+    data_dir = "data/Facedatabase"
     BATCH_SIZE = 32
     IMAGE_SIZE = 224
     default_image_size = tuple((IMAGE_SIZE, IMAGE_SIZE))
@@ -22,7 +22,7 @@ def predictStudent(img):
 
     class_names = dataset.class_names
 
-    
+
 
     predictions = model.predict(img_array)
     print(np.argmax(predictions[0]))

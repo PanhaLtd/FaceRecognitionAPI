@@ -1,9 +1,5 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
-COPY ./requirements.txt /app/requirements.txt
-
-#RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
-
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
@@ -14,11 +10,14 @@ RUN pip install --upgrade pip \
 
 RUN pip install protobuf==3.20.0
 
+RUN pip install --upgrade typing-extensions
+
+RUN pip install aiofiles
+
 COPY . /app/app
 
-# Set the working directory to /app
 WORKDIR /app/app
 
+EXPOSE 8000
 
-# Run app.py when the container launches
-CMD ["uvicorn", "main:app"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

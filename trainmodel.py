@@ -1,9 +1,5 @@
-import numpy as np
-import os
 import tensorflow as tf
 from tensorflow.keras import models, layers
-import matplotlib.pyplot as plt
-import cv2
 
 INIT_LR = 1e-3
 BATCH_SIZE = 32
@@ -11,7 +7,7 @@ EPOCHS = 50
 IMAGE_SIZE = 224
 default_image_size = tuple((IMAGE_SIZE, IMAGE_SIZE))
 image_size = 0
-data_dir = "Facedatabase"
+data_dir = "data/Facedatabase"
 CHANNELS=3
 AUTOTUNE = tf.data.AUTOTUNE
 input_shape = (IMAGE_SIZE, IMAGE_SIZE, CHANNELS)
