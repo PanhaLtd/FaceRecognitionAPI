@@ -104,5 +104,5 @@ def trainModel():
     print("[INFO] Calculating model accuracy")
     scores = model.evaluate(test_ds)
     print(f"Test Accuracy: {round(scores[1],4)*100}%")
-    model.save("data/model/app_model_with_normal")
+    model.save("data/models/app_model_with_normal")
     return f"Test Accuracy: {round(scores[1],4)*100}%"

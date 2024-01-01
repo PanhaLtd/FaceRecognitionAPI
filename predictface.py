@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 def predictStudent(img):
-    model = tf.keras.models.load_model("data/model/app_model_with_normal")
+    model = tf.keras.models.load_model("data/models/app_model_with_normal")
     img_array = tf.keras.preprocessing.image.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0) # Create a batch
 
