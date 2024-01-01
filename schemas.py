@@ -21,7 +21,7 @@ class StudentSchema(BaseModel):
         orm_mode = True
 
 class AttendanceSchema(BaseModel):
-    date: Optional[date] = None
+    date: Optional[date]
     id: Optional[int] = None
     name: Optional[str] = None
     scantime: Optional[datetime] = None

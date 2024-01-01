@@ -12,6 +12,7 @@ import os
 from trainmodel import trainModel
 from predictface import predictStudent
 import uuid
+from datetime import datetime
 from fastapi.responses import JSONResponse, FileResponse
 
 import shutil
@@ -51,7 +52,7 @@ async def add_new_student(request: RequestStudent, db: Session = Depends(get_db)
 @router.get("/train")
 async def train_model(background_tasks: BackgroundTasks):
     message = background_tasks.add_task(trainModel)
-    return ResponseNoData(status="Ok", code="200", message="hello")
+    return ResponseNoData(status="Ok", code="200", message="Model training is processing in background")
 
 @router.post("/addStudentVideo")
 async def add_student_video(student_id: int, student_name: str, video: UploadFile = File(...)):
@@ -101,7 +102,7 @@ async def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
 @router.get("/attendance")
 async def get_all_attendance(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     _attendances = crud.get_all_attendance(db)
-    attendances = [AttendanceSchema(**attendance.__dict__) for attendance in _attendances]
+    attendances = [AttendanceSchema(**attendance.__dict__,  date=datetime.now().date()) for attendance in _attendances]
     return Response(status="Ok", code="200", message="Success fetch all attendances", result=attendances)
 
 @router.post("/predict")
