@@ -100,8 +100,8 @@ async def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
     
 @router.get("/attendance")
 async def get_all_attendance(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    _students = crud.get_student(db)
-    attendances = [AttendanceSchema(**attendance.__dict__) for attendance in attendances]
+    _attendances = crud.get_all_attendance(db)
+    attendances = [AttendanceSchema(**attendance.__dict__) for attendance in _attendances]
     return Response(status="Ok", code="200", message="Success fetch all attendances", result=attendances)
 
 @router.post("/predict")
