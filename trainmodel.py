@@ -87,11 +87,6 @@ def trainModel():
 
     model = normal_model(n_classes, batch_input_shape)
 
-    
-
-    # model.summary()
-    
-
     model.compile(
         optimizer='adam',
         loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
@@ -109,5 +104,5 @@ def trainModel():
     print("[INFO] Calculating model accuracy")
     scores = model.evaluate(test_ds)
     print(f"Test Accuracy: {round(scores[1],4)*100}%")
-    model.save("app_model_with_normal")
+    model.save("data/model/app_model_with_normal")
     return f"Test Accuracy: {round(scores[1],4)*100}%"

@@ -11,5 +11,16 @@ CREATE TABLE student
 	imagepath	VARCHAR(64)
 );
 
+CREATE TABLE attendance 
+(
+	date		DATE			NOT NULL,
+	id          BIGINT      	NOT NULL,
+	name        VARCHAR(32) 	NOT NULL,
+	scantime    TIMESTAMP     	NOT NULL
+);
+
 --drop table
 drop table student
+
+--drop table
+drop table attendance

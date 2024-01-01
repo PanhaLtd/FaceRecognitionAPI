@@ -1,8 +1,8 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from fastapi import Depends
 from config import SessionLocal
 from sqlalchemy.orm import Session
-from schemas import Response, StudentSchema, RequestStudent, ResponseNoData
+from schemas import Response, StudentSchema, RequestStudent, ResponseNoData, AttendanceSchema
 import numpy as np
 from PIL import Image
 from io import BytesIO
@@ -49,8 +49,8 @@ async def add_new_student(request: RequestStudent, db: Session = Depends(get_db)
                     ).dict(exclude_none=True)
 
 @router.get("/train")
-async def train_model():
-    message = trainModel()
+async def train_model(background_tasks: BackgroundTasks):
+    message = background_tasks.add_task(trainModel)
     return ResponseNoData(status="Ok", code="200", message="hello")
 
 @router.post("/addStudentVideo")
@@ -87,7 +87,7 @@ async def add_student_video(student_id: int, student_name: str, video: UploadFil
 async def get_all_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     _students = crud.get_student(db)
     students = [StudentSchema(**student.__dict__) for student in _students]
-    return Response(status="Ok", code="200", message="Success fetch all data", result=students)
+    return Response(status="Ok", code="200", message="Success fetch all students", result=students)
 
 @router.get("/{student_id}")
 async def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
@@ -97,6 +97,12 @@ async def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
         return Response[StudentSchema](status="Ok", code="200", message="Success fetch data", result=student_schema)
     else:
         return Response[None](status="Error", code="404", message="Student not found", result = None)
+    
+@router.get("/attendance")
+async def get_all_attendance(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    _students = crud.get_student(db)
+    attendances = [AttendanceSchema(**attendance.__dict__) for attendance in attendances]
+    return Response(status="Ok", code="200", message="Success fetch all attendances", result=attendances)
 
 @router.post("/predict")
 async def predict_student(
@@ -113,7 +119,13 @@ async def predict_student(
     student = crud.get_student_by_id(db, student_id)
     if student:
         student_schema = StudentSchema(**student.__dict__)
-        return Response[StudentSchema](status="Ok", code="200", message="Success fetch data", result=student_schema)
+        attendance = crud.get_student_attendance_by_id(db, student_id)
+
+        if attendance:
+            return Response[StudentSchema](status="Ok", code="200", message="Success fetch data", result=student_schema)
+        else:
+            newAttendance = crud.add_attendance(db, student=student_schema)
+            return Response[StudentSchema](status="Ok", code="200", message="Success fetch data", result=student_schema)
     else:
         return Response[None](status="Error", code="404", message="Student not found", result = None)
     
@@ -137,7 +149,7 @@ async def upload_image(file: UploadFile = File(...)):
 
 @router.get("/images/{image}")
 async def get_student_by_id(image: str):
-    upload_folder = "uploads"
+    upload_folder = "data/uploads"
     path = f"{upload_folder}/{image}"
     print(path)
     return FileResponse(path)

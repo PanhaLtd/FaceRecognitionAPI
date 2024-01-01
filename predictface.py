@@ -1,10 +1,8 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import models
-
 
 def predictStudent(img):
-    model = tf.keras.models.load_model("app_model_with_normal")
+    model = tf.keras.models.load_model("data/model/app_model_with_normal")
     img_array = tf.keras.preprocessing.image.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0) # Create a batch
 
@@ -21,8 +19,6 @@ def predictStudent(img):
     )
 
     class_names = dataset.class_names
-
-
 
     predictions = model.predict(img_array)
     print(np.argmax(predictions[0]))

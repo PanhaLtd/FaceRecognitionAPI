@@ -1,5 +1,5 @@
 from typing import List, Optional, Generic, TypeVar
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel , Field
 from pydantic.generics import GenericModel
 
@@ -20,6 +20,15 @@ class StudentSchema(BaseModel):
     class Config:
         orm_mode = True
 
+class AttendanceSchema(BaseModel):
+    date: Optional[date] = None
+    id: Optional[int] = None
+    name: Optional[str] = None
+    scantime: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+
 
 class Request(GenericModel, Generic[T]):
     student: Optional[T] = Field(...)
@@ -28,6 +37,8 @@ class Request(GenericModel, Generic[T]):
 class RequestStudent(BaseModel):
     student: StudentSchema = Field(...)
 
+class RequestAttendance(BaseModel):
+    attendance: AttendanceSchema = Field(...)
 
 class Response(GenericModel, Generic[T]):
     code: str

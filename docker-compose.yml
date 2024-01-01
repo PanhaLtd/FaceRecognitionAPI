@@ -2,7 +2,7 @@ version: '3.3'
 services:
   postgres_db:
     image: postgres:9.6
-    container_name: DB_Postgres
+    container_name: db_postgres
     restart: always
     environment:
     - POSTGRES_USER=postgres
@@ -13,7 +13,7 @@ services:
     - /etc/pg_data:/var/lib/postgresql/data
   app:
     build: .
-    container_name: API_FaceRecognition
+    container_name: api_face_recognition
     ports:
     - '8000:8000'
     depends_on:
