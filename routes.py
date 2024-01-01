@@ -40,6 +40,12 @@ def read_file_as_image(data) -> np.ndarray:
     image = np.array(Image.open(BytesIO(data)))
     return image
 
+@router.get("/attendance")
+async def get_all_attendance(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    _attendances = crud.get_all_attendance(db)
+    attendances = [AttendanceSchema(**attendance.__dict__) for attendance in _attendances]
+    return Response(status="Ok", code="200", message="Success fetch all attendances", result=attendances)
+
 @router.post("/addNewStudent")
 async def add_new_student(request: RequestStudent, db: Session = Depends(get_db)):
     student = crud.add_student(db, student=request.student)
@@ -98,12 +104,6 @@ async def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
         return Response[StudentSchema](status="Ok", code="200", message="Success fetch data", result=student_schema)
     else:
         return Response[None](status="Error", code="404", message="Student not found", result = None)
-    
-@router.get("/attendance")
-async def get_all_attendance(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    _attendances = crud.get_all_attendance(db)
-    attendances = [AttendanceSchema(**attendance.__dict__,  date=datetime.now().date()) for attendance in _attendances]
-    return Response(status="Ok", code="200", message="Success fetch all attendances", result=attendances)
 
 @router.post("/predict")
 async def predict_student(
