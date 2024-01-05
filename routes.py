@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException, status
 from fastapi import Depends
 from config import SessionLocal
 from sqlalchemy.orm import Session
@@ -76,18 +76,19 @@ async def add_student_video(student_id: int, student_name: str, video: UploadFil
     success, image = vidcap.read()
     count = 0
     img_id = 0
-    while success and count < 100:
+    while success and img_id < 100:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.1, 3)
-        if(len(faces) != 0):
+        if len(faces) != 0:
             for (x, y, w, h) in faces:
-                # if (w > 100):
-                    face_img = gray[y:y+h, x:x+w]
-                    crop_face = cv2.resize(face_img, (224,224),cv2.INTER_AREA)
-                    cv2.imwrite(f"{folder_name}/{img_id}.jpg", crop_face)
-                    img_id += 1
-                    success, image = vidcap.read()
+                face_img = gray[y:y + h, x:x + w]
+                crop_face = cv2.resize(face_img, (224, 224), cv2.INTER_AREA)
+                cv2.imwrite(f"{folder_name}/{img_id}.jpg", crop_face)
+                img_id += 1
         count += 1
+        success, image = vidcap.read()
+
+    vidcap.release()
     return ResponseNoData(status="Ok", code="200", message="Add new student successfully")
 
 @router.get("/")
@@ -112,10 +113,14 @@ async def predict_student(
     image = read_file_as_image(await file.read())
     mybatch = cv2.resize(get_face(image),(224,224),cv2.INTER_AREA)
 
-    class_name = predictStudent(mybatch)
-
-    result = class_name.split("_")
-    student_id = int(result[0])
+    _students = crud.get_student(db)
+    student_ids = [student.id for student in _students]
+    student_ids.insert(0, 0)
+    print(student_ids)
+    
+    id = predictStudent(mybatch, student_ids)
+    
+    student_id = int(id)
 
     student = crud.get_student_by_id(db, student_id)
     if student:
@@ -128,7 +133,10 @@ async def predict_student(
             newAttendance = crud.add_attendance(db, student=student_schema)
             return Response[StudentSchema](status="Ok", code="200", message="Success fetch data", result=student_schema)
     else:
-        return Response[None](status="Error", code="404", message="Student not found", result = None)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student not found",
+        )
     
 @router.post("/upload")
 async def upload_image(file: UploadFile = File(...)):

@@ -16,6 +16,8 @@ services:
     container_name: api_face_recognition
     ports:
     - '8000:8000'
+    environment:
+    - TZ=Asia/Bangkok
     depends_on:
     - postgres_db
     volumes:
