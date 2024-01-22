@@ -116,7 +116,6 @@ async def predict_student(
     _students = crud.get_student(db)
     student_ids = [student.id for student in _students]
     student_ids.insert(0, 0)
-    print(student_ids)
     
     id = predictStudent(mybatch, student_ids)
     
@@ -160,7 +159,6 @@ async def upload_image(file: UploadFile = File(...)):
 async def get_student_by_id(image: str):
     upload_folder = "data/uploads"
     path = f"{upload_folder}/{image}"
-    print(path)
     return FileResponse(path)
 
 # @router.patch("/update")

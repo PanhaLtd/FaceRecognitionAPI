@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 def get_student(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Student).all()
+    return db.query(Student).order_by(Student.id).all()
 
 def get_student_by_id(db: Session, student_id: int):
     return db.query(Student).filter(Student.id == student_id).first()
