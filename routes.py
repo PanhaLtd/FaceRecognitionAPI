@@ -78,7 +78,7 @@ async def add_student_video(student_id: int, student_name: str, video: UploadFil
     img_id = 0
     while success and img_id < 100:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.1, 3)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
         if len(faces) != 0:
             for (x, y, w, h) in faces:
                 face_img = gray[y:y + h, x:x + w]
@@ -116,6 +116,7 @@ async def predict_student(
     _students = crud.get_student(db)
     student_ids = [student.id for student in _students]
     student_ids.insert(0, 0)
+    print(student_ids)
     
     id = predictStudent(mybatch, student_ids)
     
@@ -160,14 +161,3 @@ async def get_student_by_id(image: str):
     upload_folder = "data/uploads"
     path = f"{upload_folder}/{image}"
     return FileResponse(path)
-
-# @router.patch("/update")
-# async def update_book(request: RequestBook, db: Session = Depends(get_db)):
-#     _book = crud.update_book(db, book_id=request.parameter.id,
-#                              title=request.parameter.title, description=request.parameter.description)
-#     return Response(status="Ok", code="200", message="Success update data", result=_book)
-
-# @router.delete("/delete")
-# async def delete_book(request: RequestBook,  db: Session = Depends(get_db)):
-#     crud.remove_book(db, book_id=request.parameter.id)
-#     return Response(status="Ok", code="200", message="Success delete data").dict(exclude_none=True)
